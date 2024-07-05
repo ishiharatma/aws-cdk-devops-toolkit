@@ -1,5 +1,7 @@
 # aws-cdk-devops-toolkit<!-- omit in toc -->
 
+[日本語](README.ja.md) | English
+
 DevOps automation toolkit using AWS CDK. Includes examples for Lambda functions, CI/CD pipelines, and operational best practices on AWS.
 
 ![banner](/banner.png)
@@ -7,30 +9,29 @@ DevOps automation toolkit using AWS CDK. Includes examples for Lambda functions,
 ## Table of Contents<!-- omit in toc -->
 
 - [About this Repo](#about-this-repo)
-- [主な機能](#主な機能)
-- [使い方](#使い方)
+- [Key Features](#key-features)
+- [Getting Started](#getting-started)
 - [Official Resources](#official-resources)
 - [License](#license)
 
 ## About this Repo
 
-このリポジトリは、AWS CDKを使用したDevOps自動化ツールキットです。Lambda関数、CI/CDパイプライン、AWSでの運用ベストプラクティスの例を含んでいます。開発者やオペレーションチームがクラウド環境でのワークフローを効率化し、インフラストラクチャをコードとして管理するのに役立つ様々なサンプルとコンストラクトを提供しています。
+This repository is a DevOps automation toolkit using AWS CDK. It includes examples for Lambda functions, CI/CD pipelines, and operational best practices on AWS. The toolkit provides various samples and constructs to help developers and operations teams streamline their workflows in cloud environments and manage infrastructure as code.
 
-## 主な機能
+## Key Features
 
-- 🚀 Lambda関数の自動デプロイメント
-- 🔄 CI/CDパイプラインの構築例
-- 🏗️ インフラストラクチャのコード化
-- ⚙️ 運用タスクの自動化サンプル
-- 📊 モニタリングとアラートの設定
+- 🚀 Automated deployment of Lambda functions
+- 🔄 CI/CD pipeline construction examples
+- 🏗️ Infrastructure as Code implementations
+- ⚙️ Automation samples for operational tasks
 
-## 使い方
+## Getting Started
 
 TBD
 
 ## Official Resources
 
-AWS CDKに関する公式リソース：
+Official resources for AWS CDK:
 
 - [Developer Guide](https://docs.aws.amazon.com/cdk/v2/guide/home.html)
 - [API Reference](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-construct-library.html)
@@ -40,4 +41,4 @@ AWS CDKに関する公式リソース：
 
 ## License
 
-このプロジェクトは Apache License 2.0 のもとで公開されています。詳細は [LICENSE](LICENSE) ファイルをご覧ください。
+This project is released under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
