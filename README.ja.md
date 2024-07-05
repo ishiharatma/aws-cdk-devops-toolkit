@@ -1,6 +1,6 @@
 # aws-cdk-devops-toolkit<!-- omit in toc -->
 
-日本語 | English(README.md)
+日本語 | [English](README.md)
 
 AWS CDK を使用した DevOps 自動化ツールキット。 Lambda 関数、CI/CD パイプライン、AWS での運用のベストプラクティスの例が含まれています。
 
