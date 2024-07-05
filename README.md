@@ -1,7 +1,6 @@
 # aws-cdk-devops-toolkit<!-- omit in toc -->
 
 DevOps automation toolkit using AWS CDK. Includes examples for Lambda functions, CI/CD pipelines, and operational best practices on AWS.
-
 ![banner](/banner.png)
 
 ## Table of Contents<!-- omit in toc -->
