@@ -23,8 +23,8 @@ This repository is a DevOps automation toolkit using AWS CDK. It includes exampl
 
 - 🚀 Automated deployment of Lambda functions
 - 🔄 CI/CD pipeline construction examples
-- 🏗️ Infrastructure as Code implementations
-- ⚙️ Automation samples for operational tasks
+- 🏗 Infrastructure as Code implementations
+- ⚙ Automation samples for operational tasks
 
 ## Getting Started
 

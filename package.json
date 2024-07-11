@@ -1,7 +1,7 @@
 {
   "name": "aws-cdk-devops-toolkit",
   "version": "1.0.0",
-  "description": "",
+  "description": "DevOps automation toolkit using AWS CDK. Includes examples for Lambda functions, CI/CD pipelines, and operational best practices on AWS.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,8 +10,8 @@
     "type": "git",
     "url": "git+https://github.com/ishiharatma/aws-cdk-devops-toolkit.git"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "TOMOAKI ishihara",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/ishiharatma/aws-cdk-devops-toolkit/issues"
   },
