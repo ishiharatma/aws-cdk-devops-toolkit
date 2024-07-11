@@ -31,8 +31,6 @@ export class WafIpWhitelistAutoUpdaterStack extends cdk.Stack {
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       publicReadAccess: false,
       enforceSSL: true,
-      // see: https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/AccessLogs.html#access-logs-choosing-s3-bucket
-      //objectOwnership: s3.ObjectOwnership.BUCKET_OWNER_ENFORCED,
       removalPolicy: props.isAutoDeleteObject ? cdk.RemovalPolicy.DESTROY: undefined,
       autoDeleteObjects: props.isAutoDeleteObject ? props.isAutoDeleteObject : undefined,
     });
