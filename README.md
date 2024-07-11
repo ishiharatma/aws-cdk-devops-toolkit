@@ -28,7 +28,44 @@ This repository is a DevOps automation toolkit using AWS CDK. It includes exampl
 
 ## Getting Started
 
-TBD
+1. Checkout the repository and initialize the project
+
+1-1. Checkout a repository
+
+```sh
+git clone https://github.com/ishiharatma/aws-cdk-devops-toolkit.git
+cd aws-cdk-devops-toolkit
+```
+
+1-2. Initializing a project
+
+Install the required libraries for Node.js.
+
+```sh
+# install dependencies
+npm ci
+```
+
+2. Set your AWS CLI credentials
+
+AWS credentials (API keys) are required to deploy the CDK. Here's the simplest way to use permanent credentials.
+
+This method is mainly used in development environments. An example AWS CLI profile is below.
+
+~/.aws/credentials
+
+```text
+[<project name>-<environment>-accesskey]
+aws_access_key_id = XXXXXXXXXXXXXXX
+aws_secret_access_key = YYYYYYYYYYYYYY
+region = ap-northeast-1
+
+[<project name>-<environment>]
+region = ap-northeast-1
+role_arn = arn:aws:iam::123456789012:role/<role name>
+mfa_serial = arn:aws:iam::123456789012:mfa/<username>
+source_profile=<project name>-<environment>-accesskey
+```
 
 ## Usage
 
