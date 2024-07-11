@@ -11,6 +11,7 @@ DevOps automation toolkit using AWS CDK. Includes examples for Lambda functions,
 - [About this Repo](#about-this-repo)
 - [Key Features](#key-features)
 - [Getting Started](#getting-started)
+- [Usage](#usage)
 - [Official Resources](#official-resources)
 - [License](#license)
 
@@ -28,6 +29,14 @@ This repository is a DevOps automation toolkit using AWS CDK. It includes exampl
 ## Getting Started
 
 TBD
+
+## Usage
+
+```sh
+npm run cdk:diff:all -w workspaces/<workspace name> --env=<environment> --project=<project name>
+npm run cdk:deploy:all -w workspaces/<workspace name> --env=<environment> --project=<project name>
+npm run cdk:destroy:all -w workspaces/<workspace name> --env=<environment> --project=<project name>
+```
 
 ## Official Resources
 

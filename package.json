@@ -1,0 +1,26 @@
+{
+  "name": "aws-cdk-devops-toolkit",
+  "version": "1.0.0",
+  "description": "日本語 | [English](README.md)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ishiharatma/aws-cdk-devops-toolkit.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ishiharatma/aws-cdk-devops-toolkit/issues"
+  },
+  "homepage": "https://github.com/ishiharatma/aws-cdk-devops-toolkit#readme",
+  "private": true,
+  "workspaces": [
+    "workspaces\\*"
+  ],
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  }
+}
