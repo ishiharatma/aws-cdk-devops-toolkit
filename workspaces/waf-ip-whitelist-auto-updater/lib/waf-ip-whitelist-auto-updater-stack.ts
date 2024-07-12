@@ -39,7 +39,7 @@ export class WafIpWhitelistAutoUpdaterStack extends cdk.Stack {
     const lambdaSrcPath:string = `../src/lambda/${props.functionName}/python`;
     const defaultLambdaLogLevel:string = 'INFO';
     const defaultLambdaTimeoutSeconds:number = 900;
-    const lambdaFunctionRole = new iam.Role(this, 'EcrScanFunctionRole',{
+    const lambdaFunctionRole = new iam.Role(this, 'LambdaFunctionRole',{
       roleName: ['@role', 'lambda', props.pjName, props.envName, props.functionName].join('-'),
       assumedBy: new iam.ServicePrincipal('lambda.amazonaws.com'),
       managedPolicies: [
