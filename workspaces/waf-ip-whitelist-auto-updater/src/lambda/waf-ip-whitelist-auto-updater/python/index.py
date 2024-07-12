@@ -49,6 +49,12 @@ def update_waf_ipset(ipset_name, ipset_id, address_list, scope, region, is_debug
     else:
         logger.info('No update to the IPSet is required.')
 
+    return {
+        'inserted': ip_addresses_to_insert,
+        'deleted': ip_addresses_to_delete
+    }
+
+
 def get_ipset_lock_token(client, ipset_name, ipset_id, scope):
     """Returns the AWS WAF IP set lock token"""
     ip_set = client.get_ip_set(
@@ -95,15 +101,38 @@ def lambda_handler(event, context):
 
         logger.debug(ip_addresses) 
         
-        update_waf_ipset(ipset_name, ipset_id, ip_addresses, scope, region, is_debug=is_debug)
+        update_result = update_waf_ipset(ipset_name, ipset_id, ip_addresses, scope, region, is_debug=is_debug)
     
         # Send SNS notification if specified
         if sns_topic_arn:
-            message = f"WAF IP Whitelist update completed. IPSet: {ipset_name}, Total IPs: {len(ip_addresses)}"
+            message = (
+                f"WAF IP Whitelist update completed. "
+                f"IPSet: {ipset_name}, Scope: {scope}, Region: {region}, "
+                f"Total IPs: {len(ip_addresses)}, "
+                f"Inserted: {len(update_result['inserted'])}, "
+                f"Deleted: {len(update_result['deleted'])}"
+            )
             send_sns_notification(sns_topic_arn, message)
 
-        return ip_addresses
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'message': 'WAF IP Whitelist updated successfully',
+                'ipSetName': ipset_name,
+                'scope': scope,
+                'region': region,
+                'totalIPs': len(ip_addresses),
+                'insertedIPs': update_result['inserted'],
+                'deletedIPs': update_result['deleted']
+            })
+        }
     except Exception as e:
         logger.exception(str(e))
         logger.exception('Error processing file {} from bucket {}. Make sure it exists and your bucket is in the same region as this function.'.format(file_key, bucket_name))
-        raise e
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                'message': 'Error updating WAF IP Whitelist',
+                'error': str(e)
+            })
+        }
