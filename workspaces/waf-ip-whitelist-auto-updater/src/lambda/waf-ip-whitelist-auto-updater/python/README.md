@@ -15,14 +15,18 @@ Key features:
 - Includes a debug mode for testing changes without applying them
 - Optional SNS notifications for update results
 - Logs detailed information about changes and operations
+- Maintains a historical record of IP address changes, including additions, deletions, and reactivations
+- Stores IP address change history in a separate S3 bucket for auditing and tracking purposes
 
 This function is designed to work with WAF rules associated with CloudFront or regionally.
 
 ## Environment or Paramater
 
-- LOG_LEVEL
+- LOG_LEVEL (optional)
   - Specify the log level. Default is 'INFO'.
-  - INFO, DEBUG, ERROR, WARNING
+  - Accepted values: INFO, DEBUG, ERROR, WARNING
+- IP_RECORD_BUCKET_NAME
+  - Specifies the name of the S3 bucket where the IP address change history will be stored. This bucket is used to maintain a record of all additions, deletions, and reactivations of IP addresses in the WAF IP set. If this environment variable is not set, the IP address history tracking feature will be disabled.
 
 ## Usage
 
@@ -33,7 +37,7 @@ Upload a JSON file to the configured S3 bucket with the following structure:
     "ipSetName": "YourIPSetName",
     "ipSetId": "YourIPSetId",
     "isCloudFront": false,
-    "region": "CLOUDFRONT", // or "REGIONAL"
+    "scope": "CLOUDFRONT", // or "REGIONAL"
     "region": "ap-northeast-1",  // Used when cope is "REGIONAL"
     "allowedIpAddressRanges": ["10.0.0.0/24", "192.168.1.0/24"],
     "isDebug": false,
@@ -44,7 +48,7 @@ Or
     "ipSetName": "YourIPSetName",
     "ipSetId": "YourIPSetId",
     "isCloudFront": false,
-    "region": "CLOUDFRONT", // or "REGIONAL"
+    "scope": "CLOUDFRONT", // or "REGIONAL"
     "region": "ap-northeast-1",  // Used when cope is "REGIONAL"
     "allowedIpAddressRanges": [
       "0000:0000:0000:0000:0000:0000:0000:0000/1",

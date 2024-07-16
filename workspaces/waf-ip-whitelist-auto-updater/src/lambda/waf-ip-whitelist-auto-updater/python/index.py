@@ -3,6 +3,7 @@ import json
 import urllib.parse
 import boto3
 import logging
+from datetime import datetime
 
 logger = logging.getLogger()
 
@@ -72,6 +73,51 @@ def send_sns_notification(sns_topic_arn, message):
         Message=message
     )
 
+def update_ip_record(s3_client, bucket_name, ipset_name, ipset_id, current_addresses, inserted_addresses, deleted_addresses):
+    file_name = f"{ipset_name}.json"
+    
+    try:
+        # Fetch existing file
+        response = s3_client.get_object(Bucket=bucket_name, Key=file_name)
+        existing_data = json.loads(response['Body'].read().decode('utf-8'))
+    except s3_client.exceptions.NoSuchKey:
+        # If file doesn't exist, create a new one
+        existing_data = {
+            "ipset_name": ipset_name,
+            "ipset_id": ipset_id,
+            "Addresses": []
+        }
+
+    # Get current timestamp
+    current_time = datetime.now().isoformat()
+
+    # Update existing addresses, add new addresses, and mark deleted addresses
+    existing_addresses = {addr['ipAddress']: addr for addr in existing_data['Addresses']}
+    for ip in current_addresses:
+        if ip not in existing_addresses:
+            existing_addresses[ip] = {"ipAddress": ip, "createdAt": current_time, "status": "active"}
+        elif existing_addresses[ip].get('status') == 'deleted':
+            existing_addresses[ip]['status'] = 'active'
+            existing_addresses[ip]['reactivatedAt'] = current_time
+
+    # Mark deleted addresses
+    for ip in deleted_addresses:
+        if ip in existing_addresses:
+            existing_addresses[ip]['status'] = 'deleted'
+            existing_addresses[ip]['deletedAt'] = current_time
+
+    existing_data['Addresses'] = list(existing_addresses.values())
+
+    # Save updated data to S3
+    s3_client.put_object(
+        Bucket=bucket_name,
+        Key=file_name,
+        Body=json.dumps(existing_data, indent=2),
+        ContentType='application/json'
+    )
+
+    logger.info(f"Updated IP record in S3: {file_name}")
+
 def lambda_handler(event, context):
     setup_logging()
     try:
@@ -102,7 +148,13 @@ def lambda_handler(event, context):
         logger.debug(ip_addresses) 
         
         update_result = update_waf_ipset(ipset_name, ipset_id, ip_addresses, scope, region, is_debug=is_debug)
-    
+
+        # Update IP address records
+        record_bucket_name = os.environ.get('IP_RECORD_BUCKET_NAME')
+        if record_bucket_name:
+            s3_client = boto3.client('s3')
+            update_ip_record(s3_client, record_bucket_name, ipset_name, ipset_id, ip_addresses, update_result['inserted'], update_result['deleted'])
+
         # Send SNS notification if specified
         if sns_topic_arn:
             message = (

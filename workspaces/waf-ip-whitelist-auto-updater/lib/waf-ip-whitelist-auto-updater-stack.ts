@@ -25,8 +25,19 @@ export class WafIpWhitelistAutoUpdaterStack extends cdk.Stack {
     const region = cdk.Stack.of(this).region;
 
     // Create Bucket
-    const targetBucket = new s3.Bucket(this, 'default', {
+    const targetBucket = new s3.Bucket(this, 'UploadBucket', {
       bucketName: [props.pjName, props.envName, props.functionName, accountId].join('.'),
+      encryption: s3.BucketEncryption.S3_MANAGED,
+      blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
+      publicReadAccess: false,
+      enforceSSL: true,
+      removalPolicy: props.isAutoDeleteObject ? cdk.RemovalPolicy.DESTROY: undefined,
+      autoDeleteObjects: props.isAutoDeleteObject ? props.isAutoDeleteObject : undefined,
+    });
+
+    // Create Record Bucket
+    const recordBucket = new s3.Bucket(this, 'RecordBucket', {
+      bucketName: [props.pjName, props.envName, props.functionName, "record", accountId].join('.'),
       encryption: s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       publicReadAccess: false,
@@ -47,7 +58,7 @@ export class WafIpWhitelistAutoUpdaterStack extends cdk.Stack {
         iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonS3ReadOnlyAccess'),
       ],
       inlinePolicies: { 
-        scrScan: new iam.PolicyDocument({
+        lambdaFunctionPolicy: new iam.PolicyDocument({
         statements: [
           new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
@@ -63,6 +74,14 @@ export class WafIpWhitelistAutoUpdaterStack extends cdk.Stack {
               "sns:Publish",
             ],
             resources: ["*"],
+          }),
+          new iam.PolicyStatement({
+            effect: iam.Effect.ALLOW,
+            actions:[
+              "s3:GetObject",
+              "s3:PutObject"
+            ],
+            resources: [recordBucket.arnForObjects('*')],
           }),
          ]
       })}
@@ -84,6 +103,7 @@ export class WafIpWhitelistAutoUpdaterStack extends cdk.Stack {
           PROJECT_NAME: props.pjName,
           ENV_NAME: props.envName,
           LOG_LEVEL: defaultLambdaLogLevel,
+          IP_RECORD_BUCKET_NAME: recordBucket.bucketName,
         },
         role: lambdaFunctionRole,
         tracing: lambda.Tracing.ACTIVE,

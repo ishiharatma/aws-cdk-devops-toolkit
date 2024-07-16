@@ -15,14 +15,18 @@ WAF IP ホワイトリスト自動更新ツール
 - 変更を適用せずにテストするためのデバッグモードを搭載
 - 更新結果のオプションの SNS 通知機能
 - 変更や操作に関する詳細な情報をログに記録
+- IP アドレスの追加、削除、再有効化を含む変更履歴を維持
+- 監査とトラッキングのために、IP アドレスの変更履歴を別の S3 バケットに保存
 
 この関数は CloudFrontまたはリージョナル に関連付けられた WAF ルールで動作するように設計されています。
 
 ## Environment or Paramater
 
-- LOG_LEVEL
-  - ログレベルを指定します。デフォルトは 'INFO'です。
-  - INFO, DEBUG, ERROR, WARNING
+- LOG_LEVEL (オプション)
+  - ログレベルを指定します。デフォルトは 'INFO' です。
+  - 受け入れ可能な値：INFO, DEBUG, ERROR, WARNING
+- IP_RECORD_BUCKET_NAME
+  - WAF IP セットの IP アドレス変更履歴を保存する S3 バケットの名前を指定します。このバケットは、IP アドレスの追加、削除、再有効化のすべての記録を保持するために使用されます。この環境変数が設定されていない場合、IP アドレス履歴の追跡機能は無効になります。
 
 ## 使用方法
 
@@ -32,7 +36,7 @@ WAF IP ホワイトリスト自動更新ツール
 {
     "ipSetName": "IPセット名",
     "ipSetId": "IPセットID",
-    "region": "CLOUDFRONT", // または "REGIONAL"
+    "scope": "CLOUDFRONT", // または "REGIONAL"
     "region": "ap-northeast-1",  // scope が "REGIONAL" の場合に使用
     "allowedIpAddressRanges": ["10.0.0.0/24", "192.168.1.0/24"],
     "isDebug": false,
@@ -43,7 +47,7 @@ Or
     "ipSetName": "YourIPSetName",
     "ipSetId": "YourIPSetId",
     "isCloudFront": false,
-    "region": "CLOUDFRONT", // または "REGIONAL"
+    "scope": "CLOUDFRONT", // または "REGIONAL"
     "region": "ap-northeast-1",  // scope が "REGIONAL" の場合に使用
     "allowedIpAddressRanges": [
       "0000:0000:0000:0000:0000:0000:0000:0000/1",
