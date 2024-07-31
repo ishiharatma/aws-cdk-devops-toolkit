@@ -26,7 +26,7 @@ export class WafIpWhitelistAutoUpdaterStack extends cdk.Stack {
 
     // Create Bucket
     const targetBucket = new s3.Bucket(this, 'UploadBucket', {
-      bucketName: [props.pjName, props.envName, props.functionName, accountId].join('.'),
+      bucketName: [props.pjName, props.envName, 'waf-ip-auto-updater', 'upload', accountId].join('.'),
       encryption: s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       publicReadAccess: false,
@@ -37,7 +37,7 @@ export class WafIpWhitelistAutoUpdaterStack extends cdk.Stack {
 
     // Create Record Bucket
     const recordBucket = new s3.Bucket(this, 'RecordBucket', {
-      bucketName: [props.pjName, props.envName, props.functionName, "record", accountId].join('.'),
+      bucketName: [props.pjName, props.envName, 'waf-ip-auto-updater', 'record', accountId].join('.'),
       encryption: s3.BucketEncryption.S3_MANAGED,
       blockPublicAccess: s3.BlockPublicAccess.BLOCK_ALL,
       publicReadAccess: false,

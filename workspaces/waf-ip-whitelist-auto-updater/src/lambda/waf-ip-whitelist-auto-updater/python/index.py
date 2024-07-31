@@ -74,7 +74,7 @@ def send_sns_notification(sns_topic_arn, message):
     )
 
 def update_ip_record(s3_client, bucket_name, ipset_name, ipset_id, current_addresses, inserted_addresses, deleted_addresses):
-    file_name = f"{ipset_name}.json"
+    file_name = f"{ipset_name}-history.json"
     
     try:
         # Fetch existing file
