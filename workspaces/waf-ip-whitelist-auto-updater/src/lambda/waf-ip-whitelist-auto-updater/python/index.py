@@ -83,8 +83,8 @@ def update_ip_record(s3_client, bucket_name, ipset_name, ipset_id, current_addre
     except s3_client.exceptions.NoSuchKey:
         # If file doesn't exist, create a new one
         existing_data = {
-            "ipset_name": ipset_name,
-            "ipset_id": ipset_id,
+            "ipSetName": ipset_name,
+            "ipSetId": ipset_id,
             "Addresses": []
         }
 

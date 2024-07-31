@@ -94,8 +94,8 @@ The Lambda function stores the IP address change history in a separate S3 bucket
 
 ```json
 {
-  "ipset_name": "MyIPSet",
-  "ipset_id": "abcd1234-a123-456a-a12b-a123b456c789",
+  "ipSetName": "MyIPSet",
+  "ipSetId": "abcd1234-a123-456a-a12b-a123b456c789",
   "Addresses": [
     {
       "ipAddress": "10.0.0.0/24",

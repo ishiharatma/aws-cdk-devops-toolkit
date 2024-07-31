@@ -93,8 +93,8 @@ Lambda関数は、IP_RECORD_BUCKET_NAME環境変数で指定された別のS3バ
 
 ```json
 {
-  "ipset_name": "MyIPSet",
-  "ipset_id": "abcd1234-a123-456a-a12b-a123b456c789",
+  "ipSetName": "MyIPSet",
+  "ipSetId": "abcd1234-a123-456a-a12b-a123b456c789",
   "Addresses": [
     {
       "ipAddress": "10.0.0.0/24",
