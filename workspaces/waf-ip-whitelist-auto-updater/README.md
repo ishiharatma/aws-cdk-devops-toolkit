@@ -21,6 +21,14 @@ This project is a CDK application that automatically updates IP sets (whitelists
 - Node.js (>= 14.x)
 - AWS CDK CLI (>= 2.x)
 - AWS CLI (configured)
+  - Create the connection profile name in `<project>-<env>` used in the deployment command.
+    - When project=sample env=dev, it will be `sample-dev`.
+
+## Deploy
+
+```sh
+npm run cdk:deploy:all --env=dev --project=hogehgoe -w workspaces\waf-ip-whitelist-auto-updater
+```
 
 ## Usage
 

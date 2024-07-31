@@ -25,7 +25,7 @@ WAF IP ホワイトリスト自動更新ツール
 - LOG_LEVEL (オプション)
   - ログレベルを指定します。デフォルトは 'INFO' です。
   - 受け入れ可能な値：INFO, DEBUG, ERROR, WARNING
-- IP_RECORD_BUCKET_NAME
+- IP_RECORD_BUCKET_NAME (オプション)
   - WAF IP セットの IP アドレス変更履歴を保存する S3 バケットの名前を指定します。このバケットは、IP アドレスの追加、削除、再有効化のすべての記録を保持するために使用されます。この環境変数が設定されていない場合、IP アドレス履歴の追跡機能は無効になります。
 
 ## 使用方法
@@ -86,3 +86,48 @@ Lambdaのテストイベントを実行する場合は、次のイベントJSON�
   ]
 }
 ```
+
+## IPアドレス履歴JSON
+
+Lambda関数は、IP_RECORD_BUCKET_NAME環境変数で指定された別のS3バケットにIPアドレス変更履歴を保存します。このバケットに保存されるJSONファイルは以下の構造を持ちます：
+
+```json
+{
+  "ipset_name": "MyIPSet",
+  "ipset_id": "abcd1234-a123-456a-a12b-a123b456c789",
+  "Addresses": [
+    {
+      "ipAddress": "10.0.0.0/24",
+      "createdAt": "2024-04-26T06:25:47.344Z",
+      "status": "active"
+    },
+    {
+      "ipAddress": "192.168.1.0/24",
+      "createdAt": "2024-04-26T06:25:47.344Z",
+      "status": "active"
+    },
+    {
+      "ipAddress": "172.16.0.0/16",
+      "createdAt": "2024-04-25T10:15:30.123Z",
+      "status": "deleted",
+      "deletedAt": "2024-04-26T06:25:47.344Z"
+    },
+    {
+      "ipAddress": "203.0.113.0/24",
+      "createdAt": "2024-04-24T08:30:00.000Z",
+      "status": "active",
+      "reactivatedAt": "2024-04-26T06:25:47.344Z"
+    }
+  ]
+}
+```
+
+このJSONファイルには、各IPアドレスに対して以下の情報が含まれます：
+
+- ipAddress: IPアドレスまたはCIDR範囲
+- createdAt: IPアドレスが最初に追加されたタイムスタンプ
+- status: IPアドレスの現在のステータス（"active"または"deleted"）
+- deletedAt: IPアドレスが削除されたタイムスタンプ（該当する場合）
+- reactivatedAt: 以前に削除されたIPアドレスが再有効化されたタイムスタンプ（該当する場合）
+
+この履歴記録により、WAF IPホワイトリストの変更を時間の経過とともに簡単に監査およびトラッキングすることができます。

@@ -19,6 +19,14 @@
 - Node.js (>= 14.x)
 - AWS CDK CLI (>= 2.x)
 - AWS CLI（設定済み）
+  - 接続プロファイル名は、デプロイコマンドに使用する`<project>-<env>`で作成しておきます。
+    - project=sample env=devのときは、`sample-dev`となります。
+
+## デプロイ
+
+```sh
+npm run cdk:deploy:all --env=dev --project=hogehgoe -w workspaces\waf-ip-whitelist-auto-updater
+```
 
 ## 使用方法
 
