@@ -4,15 +4,14 @@
 
 ## 概要
 
-このプロジェクトは、AWS WAFのIPセット（ホワイトリスト）を自動的に更新するためのCDKアプリケーションです。S3バケットに設定ファイルをアップロードすることで、AWS WAFのIPセットを更新します。
+このプロジェクトは、AWS WAFのIPセット（ホワイトリスト）を自動的に更新するwaf-ip-whitelist-auto-updaterと連動してIPアドレスの棚卸ためのCDKアプリケーションです。S3バケットに保存されたIPセットの登録結果ファイルを読み取ってチェックします。
 
 ## アーキテクチャ
 
 ![overview](overview.drawio.svg)
 
-- S3バケット：設定ファイルを格納
-- Lambda関数：S3バケットにファイルがアップロードされたときにトリガーされ、WAFのIPセットを更新
-- S3トリガー：S3バケットへのファイルアップロードを検知し、Lambda関数を起動
+- Lambda関数：EventBridgeにトリガーされ、WAFのIPセットの登録内容をチェック
+- EventBridge：Lambda を起動するスケジュール
 
 ## 前提条件
 
@@ -20,40 +19,15 @@
 - AWS CDK CLI (>= 2.x)
 - AWS CLI（設定済み）
 
-## 使用方法
+## デプロイ
 
-1. 以下の形式のJSONファイルを作成：
-
-```json
-{
-  "ipSetName": "YourIPSetName",
-  "ipSetId": "YourIPSetId",
-  "allowedIpAddressRanges": ["10.0.0.0/24", "192.168.1.0/24"],
-  "scope": "CLOUDFRONT",
-  "region": "",
-  "isDebug": false,
-  "snsTopicArn": "arn:aws:sns:region:account-id:topic-name"
-}
+```sh
+npm run cdk:deploy:all --env=dev --project=hogehgoe -w workspaces\waf-ip-whitelist-monitor
 ```
 
-2. このJSONファイルをデプロイされたS3バケットにアップロード。
+## 使用方法
 
-3. Lambda関数が自動的にトリガーされ、指定されたWAF IPセットを更新
-
-### 設定項目
-
-- ipSetName: 更新するWAF IPセットの名前
-- ipSetId: 更新するWAF IPセットのID
-- allowedIpAddressRanges: 許可するIPアドレス範囲のリスト
-- scope: "CLOUDFRONT"または"REGIONAL"
-- region: リージョナルスコープの場合、使用するリージョン（空白の場合、Lambda関数のリージョンを使用）
-- isDebug: trueの場合、実際の更新を行わずログ出力のみ行う
-- snsTopicArn: 結果通知用のSNSトピックARN（オプション）
-
-### 注意事項
-
-このアプリケーションを使用する前に、必ずAWS WAFのIPセットを事前に作成しておいてください。
-セキュリティのため、S3バケットへのアクセス権限を適切に設定してください。
+なし
 
 ### トラブルシューティング
 

@@ -59,7 +59,7 @@ def lambda_handler(event, context):
                         notifications.append({
                             'ip': address['ipAddress'],
                             'date': date_to_check,
-                            'ipset_name': ip_data['ipset_name']
+                            'ipSetName': ip_data['ipSetName']
                         })
 
         # If there are notifications, send them via SNS

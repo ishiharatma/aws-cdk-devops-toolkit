@@ -89,9 +89,9 @@ export class WafIpWhitelistMonitorStack extends cdk.Stack {
     );
 
     // 定期起動のイベント
+    // dayとweekDayは両方指定不可。省略すると"?"が自動で設定される
     const eventRule = new events.Rule(this, 'EventRule', {
       schedule: events.Schedule.cron(
-        //{minute: '0', hour:'0', weekDay: 'MON' ,month: '*', year: '*'} // テスト用:dayとweekDayは両方指定不可。省略すると"?"が自動で設定される
         {minute: '0', hour:'0', day: '1' ,month: '*', year: '*'}
       ),
       description: 'Run at 9:00 (JST) every 1st day of the month',
