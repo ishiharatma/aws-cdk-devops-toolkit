@@ -21,7 +21,7 @@ npm install -w workspaces\${workspaces_name} --save-dev @types/js-yaml
 
 ```bat
 SET workspaces_name=sample
-npm init -w workspaces\%workspaces_name%
+npm init -w workspaces\%workspaces_name% -y
 cd workspaces\%workspaces_name%
 del package.json
 cdk init app --language typescript

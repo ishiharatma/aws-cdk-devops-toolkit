@@ -1,0 +1,253 @@
+<powershell>
+echo '===== userData Script ====='
+# インストーラーディレクトリ作成
+$installerPath = 'C:\installer'
+if (!(Test-Path -Path "$installerPath")) {
+    New-Item -ItemType Directory -Path "$installerPath"
+    Write-Host "$installerPath directory has been created."
+} else {
+    Write-Host "$installerPath directory already exists."
+}
+# Change to the installer directory
+Set-Location -Path $installerPath
+Write-Host "Changed working directory to: $installerPath"
+
+# 隠しファイルの表示
+Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -name "Hidden" -Value 1
+# 拡張子の表示
+Set-ItemProperty HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced -name "HideFileExt" -Value 0
+
+# "コマンドプロンプト" オプションをフォルダのコンテキストメニューに追加
+New-Item -Path "HKLM:\SOFTWARE\Classes\Directory\shell\cmd_here" -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\shell\cmd_here" -Name "(Default)" -Value "cmd"
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\shell\cmd_here" -Name "Icon" -Value "C:\Windows\system32\cmd.exe"
+
+New-Item -Path "HKLM:\SOFTWARE\Classes\Directory\shell\cmd_here\command" -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\shell\cmd_here\command" -Name "(Default)" -Value "C:\Windows\System32\cmd.exe '%L'"
+
+# "コマンドプロンプト" オプションをフォルダの背景のコンテキストメニューに追加
+New-Item -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\cmd_here" -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\cmd_here" -Name "(Default)" -Value "cmd"
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\cmd_here" -Name "Icon" -Value "C:\Windows\system32\cmd.exe"
+
+New-Item -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\cmd_here\command" -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\cmd_here\command" -Name "(Default)" -Value "C:\Windows\System32\cmd.exe '%V'"
+
+# "PowerShell" オプションをフォルダのコンテキストメニューに追加
+New-Item -Path "HKLM:\SOFTWARE\Classes\Directory\shell\powershell_here" -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\shell\powershell_here" -Name "(Default)" -Value "PowerShell"
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\shell\powershell_here" -Name "Icon" -Value "C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe"
+
+New-Item -Path "HKLM:\SOFTWARE\Classes\Directory\shell\powershell_here\command" -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\shell\powershell_here\command" -Name "(Default)" -Value "C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe -NoExit -Command Set-Location -LiteralPath '%L'"
+
+# "PowerShell" オプションをフォルダの背景のコンテキストメニューに追加
+New-Item -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\powershell_here" -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\powershell_here" -Name "(Default)" -Value "PowerShell"
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\powershell_here" -Name "Icon" -Value "C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe"
+
+New-Item -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\powershell_here\command" -Force
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Classes\Directory\Background\shell\powershell_here\command" -Name "(Default)" -Value "C:\Windows\system32\WindowsPowerShell\v1.0\powershell.exe -NoExit -Command Set-Location -LiteralPath '%V'"
+
+#languagePackダウンロード/インストール
+
+# Windows Server 2022用の"言語とオプション機能の ISO" のダウンロード
+# https://www.microsoft.com/ja-jp/evalcenter/evaluate-windows-server-2022
+$uri = 'https://go.microsoft.com/fwlink/p/?linkid=2195333'
+$languagePackOutpath = "$installerPath\langpack.iso"
+
+#Invoke-WebRequest -Uri https://software-download.microsoft.com/download/pr/17763.1.180914-1434.rs5_release_SERVERLANGPACKDVD_OEM_MULTI.iso -OutFile $languagePackOutpath
+
+# Invoke-WebRequest の代わりに net.webclientを使用してダウンロードを高速化
+# https://stackoverflow.com/questions/28682642/powershell-why-is-using-invoke-webrequest-much-slower-than-a-browser-download
+$wc = New-Object net.webclient
+$wc.Downloadfile($uri, $languagePackOutpath)
+
+echo 'language pack downloaded'
+
+### ISOに含まれる言語パックを自動インストール
+## マウントします。
+$mountResult = Mount-DiskImage $languagePackOutpath -PassThru
+
+###マウントしたISOのドライブレターを取得します。
+$driveLetter = ($mountResult | Get-Volume).DriveLetter
+
+###パスを格納
+#$lppath = $driveLetter + ":\x64\langpacks\Microsoft-Windows-Server-Language-Pack_x64_ja-jp.cab"
+$lppath = $driveLetter + ":\LanguagesAndOptionalFeatures\Microsoft-Windows-Server-Language-Pack_x64_ja-jp.cab"
+
+##「Lpksetup.exe」コマンドを使って日本語languagePackをインストールします。
+# /i: インストールする言語
+# /r: 再起動しない
+# /p: 言語パックのパス
+# /s: 無人インストール（GUIを表示しない）
+C:\windows\system32\Lpksetup.exe /i ja-JP /r /p $lppath /s
+
+# lpksetupプロセスが終了するまで待つ
+Start-sleep -second 5
+Wait-Process -Name lpksetup
+
+# ISOをアンマウントする
+Dismount-DiskImage -ImagePath $languagePackOutpath
+
+# 少し待ってからファイルを削除する
+Start-Sleep -Seconds 5
+
+# ファイルが使用中でないことを確認してから削除
+if (!(Get-Process | Where-Object {$_.Path -like "*$languagePackOutpath*"})) {
+    Remove-Item $languagePackOutpath -Force
+    echo 'language pack ISO removed'
+} else {
+    echo 'Could not remove language pack ISO, it may still be in use'
+}
+echo 'language pack installed'
+
+# UIの言語等を日本語に設定
+
+##タイムゾーンを東京にします。
+Set-TimeZone -Id "Tokyo Standard Time"
+##ユーザーが使用する言語を日本語にします。
+Set-WinUserLanguageList -LanguageList ja-JP,en-US -Force
+##ロケーションを日本にします。
+Set-WinHomeLocation -GeoId 0x7A
+##システムロケールを日本にします。
+Set-WinSystemLocale -SystemLocale ja-JP
+##UIの言語を日本語で上書きします。
+Set-WinUILanguageOverride -Language ja-JP
+##時刻/日付の形式をWindowsの言語と同じにします。
+Set-WinCultureFromLanguageListOptOut -OptOut $False
+
+echo 'language settings updated'
+
+##サーバーを再起動します。
+#Restart-Computer 
+
+## AWS CLI v2 インストール
+
+function Install-AWSCLIv2 {
+  $msiSource = 'https://awscli.amazonaws.com/AWSCLIV2.msi'
+  $msiOutPath = Join-Path $env:TEMP 'AWSCLIV2.msi'
+  Invoke-WebRequest -Uri $msiSource -OutFile $msiOutPath
+
+  # ダウンロードしたMSIファイルを実行し、サイレントインストール
+  $params = @{
+      FilePath     = 'msiexec.exe';
+      ArgumentList = @('/i', $msiOutPath, '/passive');
+      Wait         = $true;
+      PassThru     = $true;
+  }
+  $proc = Start-Process @params
+  switch ($proc.ExitCode) {
+      0 {
+          # インストール成功
+          Write-Host "Installation was successful."
+          break
+      }
+      3010 {
+          # インストール成功 : 要再起動
+          Write-Host "Installation was successful. Please restart."
+          break
+      }
+      1602 {
+          # インストールが途中でキャンセルされた
+          Write-Warning "Installation has been canceled."
+          break
+      }    
+      Default {
+          # その他のエラー
+          Write-Error ("Installation failed.(Exit code={0})" -f $_)
+          break
+      }
+  }
+  echo "AWS CLI v2 installed"
+  # Add AWS CLI to the PATH for the current session
+  $env:PATH += ";C:\Program Files\Amazon\AWSCLIV2\"
+}
+
+Install-AWSCLIv2
+
+## Google Chrome インストール
+
+function Install-GoogleChrome {
+  # Path for the workdir
+  $workdir = $installerPath
+
+  # Check if work directory exists if not create it
+
+  If (Test-Path -Path $workdir -PathType Container)
+  { Write-Host "$workdir already exists" -ForegroundColor Red}
+  ELSE
+  { New-Item -Path $workdir  -ItemType directory }
+
+  # Download the installer
+
+  $source = "https://dl.google.com/tag/s/appguid%3D%7B8A69D345-D564-463C-AFF1-A69D9E530F96%7D%26browser%3D0%26usagestats%3D1%26appname%3DGoogle%2520Chrome%26needsadmin%3Dprefers%26brand%3DGTPM/update2/installers/ChromeSetup.exe"
+  $installer = "chrome_installer.exe"
+  $destination = "$workdir\$installer"
+  # Check if Invoke-Webrequest exists otherwise execute WebClient
+  if (Get-Command 'Invoke-Webrequest')
+  {
+       Invoke-WebRequest $source -OutFile $destination
+  }
+  else
+  {
+      $WebClient = New-Object System.Net.WebClient
+      $webclient.DownloadFile($source, $destination)
+  }
+  echo 'Google Chorme downloaded'
+
+  # Start the installation
+
+  Start-Process -FilePath $destination -ArgumentList "/silent /install" -Verb RunAs -Wait
+
+  # Wait XX Seconds for the installation to finish
+
+  Start-Sleep -s 35
+  $getVersion = (get-item ($env:SystemDrive + "\Program Files\Google\Chrome\Application\chrome.exe")).VersionInfo.FileVersion
+
+  # Remove the installer
+  Remove-Item $destination
+  echo "Google Chorme installed[$getVersion]"
+
+}
+
+Install-GoogleChrome
+
+## S3 からファイルダウンロード
+
+function download-S3 {
+  # Define an array of S3 file paths
+  $files = @(
+      "s3://your-bucket-name/path/to/file1.txt",
+      "s3://your-bucket-name/path/to/file2.jpg",
+      "s3://your-bucket-name/path/to/file3.pdf"
+      # Add more file paths as needed
+  )
+
+  # Process each file in the array
+  foreach ($file in $files) {
+      # Check if the file path is not empty or whitespace
+      if (![string]::IsNullOrWhiteSpace($file)) {
+          Write-Host "Downloading: $file"
+          
+          # Execute the aws s3 cp command
+          aws s3 cp $file .
+          
+          # Check the result of the command execution
+          if ($LASTEXITCODE -eq 0) {
+              Write-Host "Successfully downloaded: $file"
+          } else {
+              Write-Host "Failed to download: $file"
+          }
+      }
+  }
+
+  Write-Host "All downloads completed."
+}
+
+download-S3
+
+#サーバーを再起動します。
+echo 'restart'
+Restart-Computer
+</powershell>
