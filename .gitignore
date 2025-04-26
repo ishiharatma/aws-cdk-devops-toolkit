@@ -384,3 +384,5 @@ parameters/*
 !parameters/sample.test.yaml
 !parameters/README.md
 .aws/
+# シンボリックリンク
+.aws
